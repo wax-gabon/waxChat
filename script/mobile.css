@@ -1,0 +1,188 @@
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+a:link{text-decoration:none}
+
+html, body {
+	height: auto;
+	min-width: 320px;
+	overflow: hidden;
+	
+}
+
+#bodyUp {
+	position: absolute;width: 100%;height: 100%;margin: 0;padding: 0;
+    background: url(../image/minions.jpg) no-repeat center center fixed;
+
+  -webkit-background-size: contain;
+  -moz-background-size: contain;
+  -o-background-size: contain;
+  background-size: contain;
+}
+#Loader {
+font: bolder 18px/100% Verdana, Tahoma, sans-serif;
+text-align:center;
+color:#FFF;
+width:300px;
+left:50%;
+margin-left:-150px;
+top:90%;
+position:absolute;
+text-shadow:0px 2px 8px #000000;
+}
+
+
+#divChat{padding: 5px 0px;border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;}
+#divGauche{cursor: pointer;height:30px;width:30px;float:left;
+	background: url('/avatar/1.png') no-repeat scroll 0% 0% / 100% 100% transparent;
+}
+#divDroite{margin-left:10px;width:220px;float:left}
+#divClear{clear:both}
+
+#map_canvas {
+	height:100%; 
+	width:100%;
+}
+
+[data-role=header]{background-color: #FFF; margin: 0px 0px 0px 0px;}  
+
+[data-role=content] {
+    padding: 0;
+    position : fixed !important;
+    top : 45px !important; 
+    right : 0;
+    bottom : 50px !important; 
+    left : 0 !important;    
+}
+
+[data-role=footer]{bottom:0; position:fixed;width:100%;}  
+
+#RTC{
+	display:none;
+	position: absolute;
+	top: 50px;
+	left: 50px;
+	margin: 0px auto;
+	width: 300px;
+	height: 256px;
+	z-index: 1;
+	overflow:hidden;
+	cursor:all-scroll;
+	background-color: white;
+	border-radius: 5px; 
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px; 
+	border: 1px solid black;
+}
+#webRTC{
+	position: relative;
+	top: 20px;
+	margin:auto;
+	width: 300px;
+	height: 225px;
+	z-index: 1;
+	overflow:hidden;
+	cursor:all-scroll;
+	border:none;
+	background-color: transparent;
+}
+#Tete{
+	margin: 10px 0px -15px 0px;
+	font-style: 16px;
+	text-align: center;
+	font-weight: bold;
+}
+#Ferme{
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	border: none;
+	z-index: 100;
+	cursor: pointer;
+	font-weight: bold;
+}
+
+#Logo{
+	background: url('/image/minions.jpg') no-repeat scroll 0% 0% / 100% 100% transparent;
+	position: relative;
+	text-align: center;
+	margin: 0px auto;
+	width: 100%;
+	height: 100%;
+}
+
+
+#selAvatar:hover{
+	cursor: pointer;
+}
+
+#Avatar{
+	position: relative;
+	margin: 0px auto;
+	width: 100px;
+	height: 100px;
+	background: url('/avatar/1.png') no-repeat scroll 0% 0% / 100px 100px transparent;
+}
+
+#Gauche{
+	float: left;
+	cursor:pointer;
+	width: 30px;
+}
+
+#Droite{
+	float: right;
+	cursor:pointer;
+	width: 30px;
+}
+
+
+#conversation{
+	margin: 0px 0px 10px 0px;
+	overflow-y:scroll;
+	height: 50%;
+	text-overflow: ellipsis;
+	word-wrap: break-word;
+}
+
+#datasend,#PseudoCnx{
+	cursor:pointer;
+}
+
+
+#Droite:hover {
+	opacity: 1;
+}
+#Droite {
+	position: absolute;
+	right: 5%;
+	width: 45px;
+	height: 45px;
+	background-image: url('/image/arrows.png');
+	background-repeat: no-repeat;
+	background-position: right bottom;
+	z-index: 200;
+	top: 155px;
+	cursor: pointer;
+	opacity: 0.5;
+}
+
+#Gauche:hover {
+	opacity: 1;
+}
+#Gauche {
+	position: absolute;
+	left: 5%;
+	width: 45px;
+	height: 45px;
+	background-image: url('/image/arrows.png');
+	background-repeat: no-repeat;
+	background-position: left bottom;
+	z-index: 200;
+	top: 155px;
+	cursor: pointer;
+	opacity: 0.5;
+}

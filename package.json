@@ -1,0 +1,11 @@
+{
+	"name": "geoChat",
+	"description": "example chat application with socket.io",
+	"version": "0.0.1",
+	"dependencies": {
+		"express": ">=0",
+		"socket.io": ">=0",
+		"bouncy": ">=0",
+		"connect": ">=0"
+	}
+}

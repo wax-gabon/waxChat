@@ -1,0 +1,250 @@
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html, body {
+	height: 100%;
+	min-width: 320px;
+	font-family: 'Open Sans', sans-serif;
+	color: #777;
+}
+
+#bodyUp {
+	position: absolute;width: 100%;height: 100%;margin: 0;padding: 0;
+    background: url(../image/minions.jpg) no-repeat top center fixed;
+    background: url(../image/minions.jpg) no-repeat center center fixed;
+
+  -webkit-background-size: contain;
+  -moz-background-size: contain;
+  -o-background-size: contain;
+  background-size: contain;
+}
+
+#Loader {
+font: bolder 18px/100% Verdana, Tahoma, sans-serif;
+text-align:center;
+color:#FFF;
+width:300px;
+left:50%;
+margin-left:-150px;
+top:90%;
+position:absolute;
+text-shadow:0px 2px 8px #000000;
+}
+
+
+#divChat{padding: 5px 0px;border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;}
+#divGauche{cursor: pointer;height:30px;width:30px;float:left;
+	background: url('/avatar/1.png') no-repeat scroll 0% 0% / 100% 100% transparent;
+}
+#divDroite{margin-left:10px;width:220px;float:left}
+#divClear{clear:both}
+
+#RTC{
+	display:none;
+	position: absolute;
+	top: 50px;
+	left: 50px;
+	margin: 0px auto;
+	width: 300px;
+	height: 256px;
+	z-index: 1;
+	overflow:hidden;
+	cursor:all-scroll;
+	border:none;
+	background-color: white;
+	border-radius: 5px; 
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px; 
+	border: 1px solid black;
+}
+#webRTC{
+	position: relative;
+	top: 20px;
+	margin:auto;
+	width: 300px;
+	height: 225px;
+	z-index: 1;
+	overflow:hidden;
+	cursor:all-scroll;
+	border:none;
+	background-color: transparent;
+}
+#Tete{
+	margin: 10px 0px -15px 0px;
+	font-style: 16px;
+	text-align: center;
+	font-weight: bold;
+}
+#Ferme{
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	border: none;
+	z-index: 100;
+	cursor: pointer;
+	font-weight: bold;
+}
+
+#map_canvas { height: 100% ; width:100%;}
+
+#FenDrag{
+	position: absolute;
+	top: 30px;
+	right: 30px;
+	width: 300px;
+	height: 345px;
+	z-index: 1;
+	overflow:hidden;
+	cursor:all-scroll;
+	border:none;
+	background-color: transparent;
+}
+
+#Logo{
+	background: url('/image/minions.png') no-repeat scroll 0% 0% / 100px 100px transparent;
+	height: 100px;
+	margin: 0px auto;
+	position: relative;
+	top: 0px;
+	width: 100px;
+	z-index: 999;
+	background-color: white;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 1px solid black;
+}
+
+textarea,input,button,select{ width: 100%; padding: 5px;margin: 5px 0px 5px 0px;
+	box-sizing: border-box;         /* IE 8+ */
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+}
+
+#selAvatar:hover{
+	cursor: pointer;
+}
+
+#Avatar{
+	position: relative;
+	margin: 0px auto;
+	width: 100px;
+	height: 100px;
+	background: url('/avatar/1.png') no-repeat scroll 0% 0% / 100px 100px transparent;
+}
+
+#Gauche{
+	float: left;
+	cursor:pointer;
+	width: 30px;
+}
+
+#Droite{
+	float: right;
+	cursor:pointer;
+	width: 30px;
+}
+
+#Bordure{
+	position: absolute;
+	border: 1px solid black;
+	width: 280px;
+	height: 275px;
+	top: 60px;
+	left: 10px;
+	background-color: #FFF;
+	border-radius: 5px; 
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px; 
+	overflow:hidden;
+}
+
+#bulle{
+	padding: 20px;
+	display: none;
+	position: absolute;
+	top: 30px;
+	width: 300px;
+	left: 50%;
+	margin-left: -170px;
+	border: 1px solid black;
+	background-color: #FFF;
+	border-radius: 5px; 
+	-moz-border-radius: 5px; 
+	-webkit-border-radius: 5px; 
+	overflow:hidden;
+	z-index:100000;
+	font-size: 12px;
+}
+
+#Cnx{
+	margin: 50px 10px 10px;
+	overflow:hidden;
+	height: 310px;
+	color: #777;
+	font-size: smaller;
+	text-align: center;
+}
+
+#Chat{
+	display: none;
+}
+
+#conversation{
+	margin: 50px 10px 10px;
+	overflow-y:scroll;
+	height: 310px;
+	color: #777;
+	font-size: smaller;
+	text-overflow: ellipsis;
+	word-wrap: break-word;
+}
+
+#datasend,#PseudoCnx{
+	height: 30px;
+	cursor:pointer;
+}
+
+#Saisie{
+	position: absolute;
+	bottom: 5px;
+	width: 260px;
+	left: 10px;
+}
+
+#Droite:hover {
+	opacity: 1;
+}
+#Droite {
+	position: absolute;
+	right: 5%;
+	width: 45px;
+	height: 45px;
+	background-image: url('/image/arrows.png');
+	background-repeat: no-repeat;
+	background-position: right bottom;
+	z-index: 200;
+	top: 155px;
+	cursor: pointer;
+	opacity: 0.5;
+}
+
+#Gauche:hover {
+	opacity: 1;
+}
+#Gauche {
+	position: absolute;
+	left: 5%;
+	width: 45px;
+	height: 45px;
+	background-image: url('/image/arrows.png');
+	background-repeat: no-repeat;
+	background-position: left bottom;
+	z-index: 200;
+	top: 155px;
+	cursor: pointer;
+	opacity: 0.5;
+}

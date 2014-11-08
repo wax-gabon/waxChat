@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+	<form id="Load" action="/upload"  name="Load" method="post" enctype="multipart/form-data" >   
+
+		<input type="text" id="snd" name="user[snd]" value="">
+		<input type="text" id="rcv" name="user[rcv]" value="">
+
+		<input onchange="checkSize(2097152);" type="file" name="uploadfile" id="uploadfile">
+		<input type="submit" value="Envoyer">
+	</form>
+
+	<script>
+
+		function checkSize(max_img_size)
+		{
+			var input = document.getElementById("uploadfile");
+
+			if(input.files && input.files.length == 1)
+			{           
+				if (input.files[0].size > max_img_size) 
+				{
+					alert("Le fichier ne doit pas dépasser " + (max_img_size/1024/1024) + "MB");
+					return false;
+				}
+			}
+
+			document.Load.submit();
+			parent.upLoad(document.getElementById('snd').value,document.getElementById('rcv').value,document.getElementById('uploadfile').value);
+		}
+	</script>
+
+</body> 
+</html>
+

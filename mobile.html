@@ -1,0 +1,551 @@
+<!DOCTYPE html > 
+<html manifest="minion.manifest"> 
+<head>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <title>minionChat</title> 
+
+  <meta name="viewport" content="width=device-width , user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="apple-touch-icon" href="image/minions.png">
+  <link rel="apple-touch-icon-precomposed" href="image/minions.png">
+  <link rel="apple-touch-startup-image" href="image/minions.png" >
+  <link id="favicon" rel="icon" type="image/x-icon" href="image/minion.ico">
+
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+
+  <link href="script/jquery.mobile-1.4.3.min.css" rel="stylesheet">
+  <link href="script/mobile.css" type="text/css" rel="stylesheet">
+  <script src="script/jquery-2.1.1.min.js"></script>
+  <script src="script/jquery.mobile-1.4.3.min.js"></script>
+  <script src="script/jquery-ui.js"></script>
+  <script src="script/infobubble.js"></script>
+</head>
+<body onload="getOpen();">
+  <input type="hidden" id="latitude" name="latitude" value="">
+  <input type="hidden" id="longitude" name="longitude" value="">
+  <input type="hidden" id="avatar" name="avatar" value="">
+  <input type="hidden" id="rooms" name="rooms" value="">
+
+  <div id="bodyUp">    
+    <div id  = "Loader">
+      Chargement en cours ...
+    </div>
+        </div>
+
+<div id="Corps" style="display: none;">
+
+  <div data-role="page" data-theme="a" data-position="fixed">
+
+    <div data-role="header" data-position="fixed">
+     <a href="http://ttgs.dlinkddns.com:8080/" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-refresh">Cnx</a>
+     <h1>minionChat</h1>
+     <button class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-info" onclick='$("#popupInfo").css({"left": ($(window).width()/2)-150});$("#popupInfo").fadeIn();'>Info</button>
+   </div>
+
+   <div data-role="content" data-position="fixed">  
+     
+     <div class="ui-popup-container ui-popup-active ui-corner-all ui-popup ui-body-a ui-overlay-shadow" style="top:50px;width: 300px;position: absolute;display:none;" id="popupLogin">
+      <div style="padding:10px 20px;">
+
+        <input id="Pseudo" placeholder="Indiquez votre Pseudo...">
+        <input id="room" placeholder="Indiquez votre 'room' privée...">
+
+        <div>
+          <div id="Gauche" onclick="Avatars('-')"></div>
+          <div id="Droite" onclick="Avatars('+')"></div>
+          <div id="Avatar"></div>
+        </div>
+
+        <button id="PseudoCnx" class="ui-btn ui-icon-check ui-btn-icon-right">Connexion</button> 
+      </div>
+    </div>
+
+    <div class="ui-popup-container ui-popup-active ui-corner-all ui-popup ui-body-a ui-overlay-shadow" id="popupChat" style="top:35px;min-width: 300px;width: 80%;position: absolute;display:none;">
+      <div style="padding:10px 20px;">
+
+       <input id="data" type="text" data-icon="refresh" placeholder="Chatez ici...">
+
+       <div id="conversation"></div>
+
+     </div>
+   </div>
+
+       <div class="ui-popup-container ui-popup-active ui-corner-all ui-popup ui-body-a ui-overlay-shadow" id="popupInfo" style="top:20px;width: 300px;position: absolute;display:none;">
+      <div style="padding:10px 20px;">
+
+      <div onclick='$("#popupInfo").fadeOut();' id='Ferme'>x</div>
+      <b>minionChat</b><br><br>Idéal pour communiquer entre vous, cette application est compatible tous navigateurs, et, accessible librement. Elle permet :<br><br>-Avatars géolocalisés<br>-Chat public et privé<br>-Messages privés<br>-Streamming vidéo<br>-Partage de fichiers<br><br>Vous devez accepter l'option géolocalisation, et, vous connecter pour voir les avatars géolocalisés.<br><br>Enjoy !
+
+     </div>
+   </div>
+
+
+   <div id="map_canvas"></div>
+   <audio preload="auto" id="son"><source src="/script/beep.mp3" type="audio/mp3"><source src="/script/beep.ogg" type="audio/ogg"></audio>
+   <div id="RTC"></div>
+
+ </div>
+
+ <div data-role="footer" data-position="fixed"> 
+
+   <h1 id="nav01"><a href="http://wax-gabon.com">Powered by wax-gabon.com</a></h1>
+
+   <div id="nav02" data-role="navbar" style="display:none;">
+    <ul>
+      <li><a href="#" id="bCarte" onclick="$( '#popupChat' ).hide();" class="ui-btn-active ui-state-persist ui-btn-inline ui-icon-location ui-btn-icon-top ui-shadow-icon">Carte</a></li>
+      <li><a href="#" id="bChat" onclick="$( '#popupChat' ).fadeIn();" class="ui-icon-comment ui-btn-icon-top ui-shadow-icon">Chat</a></li>
+    </ul>
+  </div>
+</div> 
+</div> 
+
+</div>
+
+
+<script>
+
+//_________________________________________________________________ Tableau Users et Markers
+Users=[];
+Markers=[];
+Pseudos=[];
+
+//_________________________________________________________________ IO
+var socket = io.connect('http://192.168.111.100:8080');
+//var socket = io.connect('http://ttgs.dlinkddns.com:8080');
+
+//_________________________________________________________________ Sur Connexion
+socket.on('connect', function(){
+  document.getElementById('avatar').value = '/avatar/P_1.png';
+  socket.emit('upPseudo');
+});
+
+
+function sendChat(){
+  var message = $('#data').val();
+  $('#data').val('');
+// tell server to execute 'sendchat' and send along one parameter
+if (message!='') {
+  socket.emit('sendchat', message);
+  //$('#data').focus();
+};
+}
+
+$(function(){
+
+  $('#Pseudo').keypress(function(e) {
+    if(e.which == 13) {
+      $(this).blur();
+      $('#PseudoCnx').focus().click();
+    }
+  });
+
+// when the client hits ENTER on their keyboard
+$('#data').keypress(function(e) {
+  if(e.which == 13) {
+    $(this).blur();
+    sendChat();
+  }
+});
+
+
+
+//_________________________________________________________________ Sur Connexion Pseudo
+$('#PseudoCnx').click( function() {
+
+  if( !window.map){
+    alert("Carte non chargée !!\nRecommencez svp...")}
+    else{
+//___________________________________________________ Si le pseudo est rempli et n'existe pas deja
+var pseudo=document.getElementById('Pseudo').value;
+if (pseudo!='' && Pseudos.indexOf(pseudo)==-1 && pseudo != undefined && pseudo != null) {
+
+//___________________________________________________ IO Ajoute Pseudo
+
+
+if (document.getElementById('room').value=='') { document.getElementById('room').value='Public';}
+
+document.getElementById('rooms').value=document.getElementById('room').value;
+
+document.title= document.getElementById('Pseudo').value + ' @ \''+document.getElementById('rooms').value+'\'';
+
+socket.emit('adduser',
+  document.getElementById('Pseudo').value,
+  document.getElementById('latitude').value,
+  document.getElementById('longitude').value,
+  document.getElementById('avatar').value,
+  document.getElementById('rooms').value);
+
+$('#popupLogin').hide();
+$("#popupChat").css({'left': ($("[data-role=content]").width()/2)-($("#popupChat").width()/2)});
+$("#RTC").css({'left': ($("[data-role=content]").width()/2)-150});
+$("#conversation").css({'height': $("[data-role=content]").height()-180});
+$("#favicon").attr("href",document.getElementById('avatar').value );
+$('#nav01').hide();$('#nav02').fadeIn();
+
+}else{
+
+  if (document.getElementById('Pseudo').value==''){
+    alert('Vous devez saisir un Pseudo !');
+  }else{alert('Ce pseudo \' '+$('#Pseudo').val()+' \' existe déja !');};
+
+  $('#Pseudo').val('');$('#Pseudo').focus();
+
+};
+
+}
+
+});
+
+});
+
+//_________________________________________________________________ webRTC
+socket.on('RTC', function (snd,rcv,clef){
+  if (document.getElementById('Pseudo').value==rcv) {
+    $("#bCarte").click();
+    $("#RTC").html("").html("<div onclick='Ferme();' id='Ferme'>x</div><div id='Tete'>"+snd+"</div><iframe src='https://apprtc.appspot.com/?r="+snd+clef+"' id='webRTC'></iframe>").fadeIn();
+  }
+});
+
+//_________________________________________________________________ Deconnection
+socket.on('reboot', function () {
+  location.reload();
+});
+
+//_________________________________________________________________ upDate Chat
+socket.on('updatechat', function (username, data,avatar) {
+  $('#conversation').prepend(createDiv(username, '',data,avatar));
+});
+
+//_________________________________________________________________ upDate MsgPrivate
+socket.on('Private', function (snd, rcv, data,avatar) {
+  if (document.getElementById('Pseudo').value==rcv || document.getElementById('Pseudo').value==snd) {
+    $('#bChat').click();
+    $('#conversation').prepend(createDiv(snd, rcv, data,avatar));}
+  });
+
+//_________________________________________________________________ upAvatar
+socket.on('upAvatar', function (username,Latitude,Longitude,Avatar) {
+
+  if (Users.indexOf(username)!=-1 && username != '' && username != undefined && username != null) {
+    var Pos=jQuery.inArray(username, Users)
+    var latlng = new google.maps.LatLng(Latitude,Longitude);
+    Markers[Pos].setPosition(latlng);
+  }
+
+  if (Users.indexOf(username)==-1 && username != '' && username != undefined && username != null) {
+    getMarker(Latitude,Longitude,username,Avatar);
+  }
+
+});
+
+//_________________________________________________________________ upPseudo
+socket.on('upPseudo', function (username) {
+  var Pos=jQuery.inArray(username, Pseudos)
+  if (Pos == -1) {
+    Pseudos[Pseudos.length] = username;
+  }
+});
+
+//_________________________________________________________________ SupPseudo
+socket.on('SupPseudo', function (username) {
+
+  var Pos=jQuery.inArray(username, Pseudos)
+  if (Pos != -1) {
+    Pseudos.splice(Pos, 1);
+  }
+});
+
+//_________________________________________________________________ Supprime Avatar
+socket.on('SupAvatar', function (username) {
+
+  var Pos=jQuery.inArray(username, Users)
+
+  if (Pos != -1) {
+    var marker = Markers[Pos];
+    marker.setMap(null);
+    Users.splice(Pos, 1);
+    Markers.splice(Pos, 1);
+  }
+});
+
+
+//_________________________________________________________________ createDiv
+
+function createDiv(snd, rcv, data,avatar){
+//PosAvatar.toString()
+if (rcv!='') {var rcv=' pour <b id="selAvatar" onclick="getAvatar(\''+rcv+'\')">'+rcv+'</b>'};
+var div='<div id="divChat"><div id="divGauche" style="background-image:url('+avatar+')" onmouseover="Bulle(\'selAvatar\');" onclick="getAvatar(\''+snd+'\')" ></div><div id="divDroite"><b id="selAvatar" onclick="getAvatar(\''+snd+'\')">'+snd+'</b> :'+rcv+'<br>' + data +'</div><div id="divClear"></div></div>'
+
+return div;
+
+}
+
+//_________________________________________________________________ Sur getAvatar
+function getAvatar(avatar){
+  if (jQuery.inArray(avatar, Users) != -1) {
+    $( '#bCarte' ).click();
+    map.panTo(Markers[jQuery.inArray(avatar, Users)].position);
+    map.setZoom(18);
+  }
+  else{alert("Je n'ai pas trouvé "+avatar);}
+}
+
+//_________________________________________________________________ Sur switchRoom
+function switchRoom(){
+  if (document.getElementById('room').value=='') { document.getElementById('rooms').value='Public';}
+  else{document.getElementById('rooms').value=document.getElementById('room').value};
+  socket.emit('switchRoom', '\''+document.getElementById('rooms').value+'\'');(username,avatar,newroom)
+  document.title= document.getElementById('Pseudo').value + ' @ \''+document.getElementById('rooms').value+'\'';
+}
+
+//_________________________________________________________________ Selection de l'avatar
+var PosAvatar = 1;
+
+function Avatars(Sens)
+{
+  if (Sens=='+') {PosAvatar=PosAvatar+1;if (PosAvatar==33) {PosAvatar=1};
+}else{PosAvatar=PosAvatar-1;if (PosAvatar==0) {PosAvatar=32};};
+
+$('#Avatar').css('background','url(/avatar/'+PosAvatar.toString()+'.png) no-repeat scroll 0% 0% / 100px 100px transparent');
+
+document.getElementById('avatar').value = '/avatar/P_'+PosAvatar.toString()+'.png';
+}
+
+//_________________________________________________________________ Sur msgPrivate
+function myPrivate(snd,rcv,msg)
+{
+  if (msg) {
+    socket.emit('MsgPrivate', snd,rcv,msg);
+  }
+}
+
+//_________________________________________________________________ upLoad
+function upLoad(snd,rcv,chemin)
+{
+  if (chemin) {
+    var startIndex = (chemin.indexOf('\\') >= 0 ? chemin.lastIndexOf('\\') : chemin.lastIndexOf('/'));
+    var chemin = chemin.substring(startIndex);
+    if (chemin.indexOf('\\') === 0 || chemin.indexOf('/') === 0) {
+      chemin = chemin.substring(1);
+    }
+    socket.emit('upLoad', snd,rcv,chemin);
+  }
+}
+
+//_________________________________________________________________ webRTC
+function webRTC(snd,rcv){
+  var num = Math.floor(Math.random() * 501);
+  var clef= num.toString();
+  $("#RTC").html("").html("<div onclick='Ferme();' id='Ferme'>x</div><div style='text-shadow:none;font-size:16px;color: #777;' id='Tete'>"+rcv+"</div><iframe src='https://apprtc.appspot.com/?r="+snd+clef+"' id='webRTC'></iframe>").fadeIn();
+
+  var msg= '<span style="cursor:pointer;color:Red;" onclick="Video(\''+snd+'\',\''+rcv+'\','+clef+');">Accepter l\'invitation videoChat</span>'
+
+  socket.emit('MsgVideo', snd,rcv,msg);
+
+}
+
+function Video(snd,rcv,clef){
+  socket.emit('RTC',snd,rcv,clef);
+}
+
+//_________________________________________________________________ Location URL
+if (document.location.href.indexOf( "/@" )!=-1) {
+  window.onload=function(){document.getElementById('room').value = document.location.href.substring(document.location.href.lastIndexOf( "/" )+2 );};
+}else{document.getElementById('room').value ='';}
+
+if (document.location.href.indexOf( "/apple" )!=-1) {
+ $('[data-role=header]').css({ 'margin' : '20px 0px 0px 0px'});
+ $('[data-role=content]').css({ 'margin' : '20px 0px 0px 0px'});
+$('#bodyUp').fadeOut('slow');
+$('#Corps').fadeIn('slow');
+
+}
+  //_________________________________________________________________ Sur connexion GoogleMap
+  function getOpen()
+  {
+
+    if (navigator.geolocation)
+    {
+      navigator.geolocation.getCurrentPosition(getMap,showError);
+    }
+    else{alert("Geolocation is not supported by this browser.");}
+  }
+
+//_________________________________________________________________ Position du Pseudo
+function getMap(position)
+{
+  map = new google.maps.Map(document.getElementById("map_canvas"), {
+    zoom: 12,
+    center: new google.maps.LatLng(position.coords.latitude,position.coords.longitude),
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  });
+  document.getElementById('latitude').value = position.coords.latitude;
+  document.getElementById('longitude').value = position.coords.longitude;
+$('#bodyUp').fadeOut('slow');
+$('#Corps').fadeIn('slow');
+  $("#Logo").fadeOut();$('#popupInfo').hide();
+  $("[data-role=page]").css({'width': $(window).width()});
+  $("#popupLogin").css({'left': ($("[data-role=content]").width()/2)-150});
+  $("#popupLogin").fadeIn();
+}
+
+//_________________________________________________________________ Mouvement du Pseudo
+function getLocation()
+{
+  if (navigator.geolocation)
+  {
+    navigator.geolocation.getCurrentPosition(getPosition,showError);
+  }
+  else{alert("Geolocation is not supported by this browser.");}
+}
+
+function getPosition(position)
+{
+
+  if (document.getElementById('latitude').value != position.coords.latitude || document.getElementById('longitude').value != position.coords.longitude) {
+    document.getElementById('latitude').value = position.coords.latitude;
+    document.getElementById('longitude').value = position.coords.longitude;
+
+    socket.emit('moovUser',
+      document.getElementById('Pseudo').value,
+      document.getElementById('latitude').value,
+      document.getElementById('longitude').value,
+      document.getElementById('avatar').value);
+  }
+
+  setTimeout(getLocation,1000);
+}
+
+//_________________________________________________________________ Affichage de l'avatar
+function getMarker(lat,lon,uti,avatar)
+{
+
+  var pinImage = new google.maps.MarkerImage(avatar,
+    new google.maps.Size(50, 50),
+    new google.maps.Point(0,0));
+
+  var marker = new google.maps.Marker({
+    position: new google.maps.LatLng(lat,lon),
+    animation: google.maps.Animation.DROP,
+    icon: pinImage,
+    map: map
+  });
+
+//_________________________________________________________________ Ajout marker dans Markers
+var Pos=jQuery.inArray(uti, Users)
+if (Pos == -1) {
+  Users[Users.length] = uti;
+  Markers[Markers.length] = marker;
+}else{
+  Users[Pos] = uti;
+  Markers[Pos] = marker;
+}
+
+    //Ajout de la fenetre d'informations au marqueur
+    var contenu = '<b style="text-shadow:none;font-size:16px;color: #777;">'+uti+'</b>';
+    var snd=document.getElementById('Pseudo').value;
+    var rcv=uti;
+    var infowindow = new google.maps.InfoWindow({
+      content: contenu
+    });
+
+//if('+snd+'!='+rcv+'){webRTC(\''+snd+'\',\''+rcv+'\');}else{alert("Vous ne pouvez pas faire un videoChat à vous même !")};
+
+var content = '<div class="ui-body-a" style="border:none;"><div style="text-align:center;font-size:16px;"><b>'+rcv+'</b></div><button class="ui-btn ui-mini ui-icon-comment ui-btn-icon-right ui-shadow ui-corner-all" onmouseover="Bulle(\'MsgPrivate\');" id="MsgPrivate" onclick="var msg=prompt(\'Indiquez votre message privé\');myPrivate(\''+snd+'\',\''+rcv+'\',msg);">Message privé</button><button class="ui-btn ui-mini ui-icon-video ui-btn-icon-right ui-shadow ui-corner-all" onmouseover="Bulle(\'StreamVideo\');" onclick="webRTC(\''+snd+'\',\''+rcv+'\');" id="StreamVideo">Streaming Video</button><button class="ui-btn ui-mini ui-icon-cloud ui-btn-icon-right ui-shadow ui-corner-all" onclick="'+rcv+'.document.getElementById(\'snd\').value=\''+snd+'\';'+rcv+'.document.getElementById(\'rcv\').value=\''+rcv+'\';'+rcv+'.document.Load.uploadfile.click();" onmouseover="Bulle(\'FileSend\');" id="FileSend">Envoyer un fichier</button><iframe style="display:none;" src="/script/iframe.html" width="100" height="100" name="'+rcv+'" id="'+rcv+'"></iframe></div>' ;
+
+var infoBubble = new InfoBubble({map: map,content:content,hideCloseButton:true});
+
+google.maps.event.addListener(map, "click", function () {
+  infoBubble.close();
+});
+
+
+//_________________________________________________________________ Création du listener du clic de souris sur le marqueur
+google.maps.event.addListener(marker, 'click', function() {
+  if (!infoBubble.isOpen()) {
+    infowindow.close(map,this);
+    infoBubble.open(map, this);
+    infoBubble.setMaxWidth('160');
+  }});
+
+if (document.getElementById('Pseudo').value == uti ){getLocation();};
+
+//_________________________________________________________________ Création du listener du mouseover de souris sur le marqueur
+google.maps.event.addListener(marker, 'mouseover', function() {
+ if (!infoBubble.isOpen()) {
+  infowindow.open(map,this);
+  Bulle('canvas');
+}});
+
+//_________________________________________________________________ Création du listener du mouseout de souris sur le marqueur
+google.maps.event.addListener(marker, 'mouseout', function() {
+  infowindow.close(map,this);
+});
+
+//_________________________________________________________________ Beep
+$('#son')[0].play();
+}
+
+//_________________________________________________________________ Erreurs GoogleMap
+function showError(error) {
+    var info = "Erreur lors de la géolocalisation : ";
+    switch(error.code) {
+    case error.TIMEOUT:
+      info += "Timeout !";
+    break;
+    case error.PERMISSION_DENIED:
+    info += "Vous n’avez pas donné la permission";
+    break;
+    case error.POSITION_UNAVAILABLE:
+      info += "La position n’a pu être déterminée";
+    break;
+    case error.UNKNOWN_ERROR:
+      info += "Erreur inconnue";
+    break;
+    }
+ alert(info);
+  reboot();
+}
+
+function Ferme(){$("#RTC").html("").hide();}
+
+window.onresize=function() {
+
+  var deviceHeight = screen.availHeight;
+  var deviceWidth = screen.availWidth;
+
+  if(window.orientation > 0) {
+    // landscape 
+    $('body,[data-role=page]').css('height',deviceWidth);
+  } else {
+    // portrait
+    $('body,[data-role=page]').css('height',deviceHeight);
+  }
+
+  $("[data-role=content]").css({'height': $(window).height()-$("[data-role=footer]").height()-$("[data-role=header]").height()});
+  $("#popupLogin").css({'left': ($("[data-role=content]").width()/2)-150});
+  $("#popupChat").css({'left': ($("[data-role=content]").width()/2)-($("#popupChat").width()/2)});
+  $("#RTC").css({'left': ($("[data-role=content]").width()/2)-150});
+  $("#conversation").css({'height': $("[data-role=content]").height()-180});
+};
+
+
+document.addEventListener('focusout', function(e) {
+  window.scrollTo(0, 0);
+});
+
+$('#data').focus(function(){
+  $("#conversation").css({'height': $('#conversation').height()/2});
+});
+
+
+$( "#data" ).blur(function() {
+ $("#conversation").css({'height': $('#conversation').height()*2});
+});
+
+</script>
+</body>
+</html>
